@@ -170,5 +170,6 @@ typings/
 !.vscode/extensions.json
 
 
+lib/*
 input/*
 output/*
