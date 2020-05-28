@@ -68,3 +68,7 @@ inBracketState['\n'].nextState = inBracketState;
 let currentMusic = DEFAULT_MUSIC;
 let currentSound = DEFAULT_SOUND;
 let currentBG = DEFAULT_BG;
+
+const testText = 'abc [music dance] abc';
+
+export { testText };
