@@ -1,22 +1,22 @@
 import { parse } from './index';
 
-// test('Parse a no-tag text', () => {
-//   expect(parse('Cool beans.')).toStrictEqual({
-//     sections: [
-//       {
-//         paragraphs: ['Cool beans.'],
-//         music: '',
-//         sound: '',
-//         filter: '',
-//         bg: '',
-//         image: '',
-//         id: 0,
-//       },
-//     ],
-//   });
-// });
+test('Parse a no-tag text', () => {
+  expect(parse('Cool beans.')).toStrictEqual({
+    sections: [
+      {
+        paragraphs: ['Cool beans.'],
+        music: '',
+        sound: '',
+        filter: '',
+        bg: '',
+        image: '',
+        id: 0,
+      },
+    ],
+  });
+});
 
-test('Parse music tag', () => {
+test('Parse abc[bg building]def', () => {
   const testText = 'abc[bg building]def';
   const result = parse(testText);
 

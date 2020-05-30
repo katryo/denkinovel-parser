@@ -202,7 +202,6 @@ inBracketAfterKeyState['\n'].nextState = inBracketAfterKeyState;
 const keyDetermineAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
   const key = cur.chars.join('');
   cur.chars = [];
-  console.log({ key });
   if (!VALID_BRACKET_KEYS.includes(key)) {
     errorAction(char, cur, i, breakCount, text);
   }
@@ -237,7 +236,7 @@ initState['['].nextState = inBracketBeforeKeyState;
 initState['['].action = endSectionAction;
 
 const parse = (text: string) => {
-  let cur = INIT_PROPS;
+  let cur = JSON.parse(JSON.stringify(INIT_PROPS));
 
   let breakCount = 0;
   let state = initState;
