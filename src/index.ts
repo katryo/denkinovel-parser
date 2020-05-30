@@ -67,9 +67,14 @@ const DEFAULT_IMAGE = '';
 const VALID_BRACKET_KEYS = ['bg', 'music', 'image', 'filter'];
 
 const errorAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
-  const line = text.split('\n')[breakCount];
-  throw new Error(`Parse error. Text index: ${i}. Line number: ${breakCount + 1}. Line: ${line}`);
+  const spaces = [];
+  for (let index = 0; index < i; index++) {
+    spaces.push(' ');
+  }
+  const spaceString = spaces.join('');
+  throw new Error(`Parse error. Text index: ${i}. Line number: ${breakCount + 1}.\n${text}\n${spaceString}^`);
 };
+
 const ERROR_ACTION_STATE = {
   action: errorAction,
   nextState: {},
@@ -116,38 +121,39 @@ const pushCharAction = (char: string, cur: CurrentProps, _i: number, _breakCound
 
 initState.OTHERS.nextState = initState;
 initState.OTHERS.action = pushCharAction;
-
 // break action
 initState['\n'].action = (_char: string, cur: CurrentProps, _i: number, _breakCound: number, _text: string) => {
-  const paragraph = cur.chars.join('');
-  cur.paragraphs.push(paragraph);
+  const newParagraph = cur.chars.join('');
+  cur.paragraphs.push(newParagraph);
   return cur;
 };
 initState['\n'].nextState = initState;
-
 const endSectionAction = (_char: string, cur: CurrentProps, _i: number, _breakCound: number, _text: string) => {
   const paragraph = cur.chars.join('');
-  cur.paragraphs.push(paragraph);
-  cur.sections.push({
-    paragraphs: cur.paragraphs,
-    music: cur.music,
-    sound: cur.sound,
-    filter: cur.filter,
-    bg: cur.bg,
-    image: cur.image,
-    id: cur.id,
-  });
-  cur.chars = [];
-  cur.paragraphs = [];
+  if (cur.paragraphs.length > 0 || paragraph !== '') {
+    cur.paragraphs.push(paragraph);
+    cur.sections.push({
+      paragraphs: cur.paragraphs,
+      music: cur.music,
+      sound: cur.sound,
+      filter: cur.filter,
+      bg: cur.bg,
+      image: cur.image,
+      id: cur.id,
+    });
+    cur.chars = [];
+    cur.paragraphs = [];
+    cur.id += 1;
+  }
   return cur;
 };
-
 initState[END].action = endSectionAction;
 
 const endBracketAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
-  const value = cur.chars.join();
+  const value = cur.chars.join('');
+  cur.chars = [];
   const key = cur.bracketKey;
-  if (!(key in VALID_BRACKET_KEYS)) {
+  if (!VALID_BRACKET_KEYS.includes(key)) {
     errorAction(char, cur, i, breakCount, text);
     return {};
   }
@@ -194,17 +200,19 @@ inBracketAfterKeyState[' '].nextState = inBracketAfterKeyState;
 inBracketAfterKeyState['\n'].nextState = inBracketAfterKeyState;
 
 const keyDetermineAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
-  const key = cur.chars.join();
-  if (!(key in VALID_BRACKET_KEYS)) {
+  const key = cur.chars.join('');
+  cur.chars = [];
+  console.log({ key });
+  if (!VALID_BRACKET_KEYS.includes(key)) {
     errorAction(char, cur, i, breakCount, text);
   }
   cur.bracketKey = key;
   return cur;
 };
 
-// [bg building]
-//  ^
+// [ bg building]
 //   ^
+//    ^
 const inBracketKeyState: State = {
   ' ': { action: keyDetermineAction, nextState: inBracketAfterKeyState },
   '\n': { action: keyDetermineAction, nextState: inBracketAfterKeyState },
@@ -212,14 +220,15 @@ const inBracketKeyState: State = {
 };
 inBracketKeyState.OTHERS.nextState = inBracketKeyState;
 
-// [bg building]
+// [ bg building]
 // ^
+//  ^
 const inBracketBeforeKeyState: State = {
   ']': ERROR_ACTION_STATE,
   ' ': { action: noOpAction, nextState: {} }, // To be replaced with inBracketBeforeKeyState
   '\n': { action: noOpAction, nextState: {} }, // To be replaced with inBracketBeforeKeyState
   '[': ERROR_ACTION_STATE,
-  OTHERS: { action: pushCharAction, nextState: inBracketKeyState }, // To be replaced with inBracketKeyState
+  OTHERS: { action: pushCharAction, nextState: inBracketKeyState },
 };
 inBracketBeforeKeyState[' '].nextState = inBracketBeforeKeyState;
 inBracketBeforeKeyState['\n'].nextState = inBracketBeforeKeyState;
@@ -230,11 +239,10 @@ initState['['].action = endSectionAction;
 const parse = (text: string) => {
   let cur = INIT_PROPS;
 
-  let i = 0;
   let breakCount = 0;
   let state = initState;
 
-  const step = (char: string) => {
+  const step = (char: string, i: number) => {
     if (char === '\n') {
       breakCount += 1;
     }
@@ -249,9 +257,9 @@ const parse = (text: string) => {
 
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
-    step(char);
+    step(char, i);
   }
-  step(END);
+  step(END, text.length - 1);
 
   return {
     sections: cur.sections,
