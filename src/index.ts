@@ -34,14 +34,39 @@ const _exampleOutput = {
   },
 };
 
-const DEFAULT_BG = 'black';
+interface Section {
+  paragraphs: string[];
+  music: string;
+  sound: string;
+  filter: string;
+  bg: string;
+  image: string;
+  id: number;
+}
+
+interface CurrentProps {
+  id: number;
+  music: string;
+  sound: string;
+  bg: string;
+  filter: string;
+  image: string;
+  paragraphs: string[];
+  chars: string[];
+  sections: Section[];
+}
+
+const END = 'END';
+const DEFAULT_BG = '';
 const DEFAULT_MUSIC = '';
 const DEFAULT_SOUND = '';
-const OTHERS = 'OTHERS';
+const DEFAULT_FILTER = '';
+const DEFAULT_IMAGE = '';
 const ERROR_OBJ = {
-  func: (char: string, charPosition: number, linePosition: number) => {
+  func: (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
     // TODO: Show where the error happened.
-    throw new Error('Parse error');
+    const line = text.split('\n')[breakCount];
+    throw new Error(`Parse error. Text index: ${i}. Line number: ${breakCount + 1}. Line: ${line}`);
   },
   nextState: {},
 };
@@ -53,14 +78,57 @@ interface State {
   };
 }
 
+type StateFunc = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => CurrentProps;
+
+const noOpFunc: StateFunc = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => {
+  return {
+    id: 0,
+    music: DEFAULT_MUSIC,
+    sound: DEFAULT_SOUND,
+    bg: DEFAULT_BG,
+    image: DEFAULT_IMAGE,
+    filter: DEFAULT_FILTER,
+    paragraphs: [],
+    chars: [],
+    sections: [],
+  };
+};
+
 const initState: State = {
-  '[': { func: () => {}, nextState: {} }, // To be replaced with inBracketState
+  '[': { func: noOpFunc, nextState: {} }, // To be replaced with inBracketState
   ']': ERROR_OBJ,
-  '\n': { func: () => {}, nextState: {} },
-  OTHERS: { func: () => {}, nextState: {} }, // To be replaced
+  '\n': { func: noOpFunc, nextState: {} }, // To be replaced
+  END: { func: noOpFunc, nextState: {} }, // To be replaced
+  OTHERS: { func: noOpFunc, nextState: {} }, // To be replaced
 };
 
 initState.OTHERS.nextState = initState;
+initState.OTHERS.func = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => {
+  cur.chars.push(char);
+  return cur;
+};
+
+initState['\n'].func = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => {
+  const paragraph = cur.chars.join('');
+  cur.paragraphs.push(paragraph);
+  return cur;
+};
+initState['\n'].nextState = initState;
+
+initState[END].func = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => {
+  const paragraph = cur.chars.join('');
+  cur.paragraphs.push(paragraph);
+  cur.sections.push({
+    paragraphs: cur.paragraphs,
+    music: cur.music,
+    sound: cur.sound,
+    filter: cur.filter,
+    bg: cur.bg,
+    image: cur.image,
+    id: cur.id,
+  });
+  return cur;
+};
 
 const inBracketState: State = {
   ']': { func: () => {}, nextState: initState },
@@ -74,32 +142,43 @@ initState['['].nextState = inBracketState;
 inBracketState['\n'].nextState = inBracketState;
 
 const parse = (text: string) => {
-  let cur = {
-    key: 0,
+  let cur: CurrentProps = {
+    id: 0,
     music: DEFAULT_MUSIC,
     sound: DEFAULT_SOUND,
     bg: DEFAULT_BG,
+    image: DEFAULT_IMAGE,
+    filter: DEFAULT_FILTER,
     paragraphs: [],
     chars: [],
+    sections: [],
   };
 
   let i = 0;
+  let breakCount = 0;
   let state = initState;
+
+  const step = (char: string) => {
+    if (char === '\n') {
+      breakCount += 1;
+    }
+    let next = char;
+    if (!(char in state)) {
+      next = 'OTHERS';
+    }
+    const { func, nextState } = state[next];
+    cur = func(char, cur, i, breakCount, text); // Passing whole the text is memory consuming?
+    state = nextState;
+  };
 
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
-    if (char in state) {
-      const { func, nextState } = state[char];
-      const actionFunc = func(char); // TODO: think
-      cur = actionFunc(cur);
-      state = nextState;
-    }
+    step(char);
   }
+  step(END);
 
   const outputJSON = {
-    sections: [
-      { paragraphs: ['abc'], music: 'lets-dance', sound: '', filter: 'black', bg: 'building', image: '', key: '1' },
-    ],
+    sections: cur.sections,
   };
   return outputJSON;
 };
