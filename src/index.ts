@@ -63,7 +63,7 @@ const DEFAULT_SOUND = '';
 const DEFAULT_FILTER = '';
 const DEFAULT_IMAGE = '';
 const ERROR_OBJ = {
-  func: (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
+  action: (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
     // TODO: Show where the error happened.
     const line = text.split('\n')[breakCount];
     throw new Error(`Parse error. Text index: ${i}. Line number: ${breakCount + 1}. Line: ${line}`);
@@ -73,14 +73,14 @@ const ERROR_OBJ = {
 
 interface State {
   [key: string]: {
-    func: Function;
+    action: Function;
     nextState: State;
   };
 }
 
-type StateFunc = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => CurrentProps;
+type StateAction = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => CurrentProps;
 
-const noOpFunc: StateFunc = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => {
+const noOpAction: StateAction = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => {
   return {
     id: 0,
     music: DEFAULT_MUSIC,
@@ -95,27 +95,27 @@ const noOpFunc: StateFunc = (char: string, cur: CurrentProps, i: number, breakCo
 };
 
 const initState: State = {
-  '[': { func: noOpFunc, nextState: {} }, // To be replaced with inBracketState
+  '[': { action: noOpAction, nextState: {} }, // To be replaced with inBracketState
   ']': ERROR_OBJ,
-  '\n': { func: noOpFunc, nextState: {} }, // To be replaced
-  END: { func: noOpFunc, nextState: {} }, // To be replaced
-  OTHERS: { func: noOpFunc, nextState: {} }, // To be replaced
+  '\n': { action: noOpAction, nextState: {} }, // To be replaced
+  END: { action: noOpAction, nextState: {} }, // To be replaced
+  OTHERS: { action: noOpAction, nextState: {} }, // To be replaced
 };
 
 initState.OTHERS.nextState = initState;
-initState.OTHERS.func = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => {
+initState.OTHERS.action = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => {
   cur.chars.push(char);
   return cur;
 };
 
-initState['\n'].func = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => {
+initState['\n'].action = (_char: string, cur: CurrentProps, _i: number, _breakCound: number, _text: string) => {
   const paragraph = cur.chars.join('');
   cur.paragraphs.push(paragraph);
   return cur;
 };
 initState['\n'].nextState = initState;
 
-initState[END].func = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => {
+const endSectionAction = (_char: string, cur: CurrentProps, _i: number, _breakCound: number, _text: string) => {
   const paragraph = cur.chars.join('');
   cur.paragraphs.push(paragraph);
   cur.sections.push({
@@ -127,18 +127,23 @@ initState[END].func = (char: string, cur: CurrentProps, i: number, breakCound: n
     image: cur.image,
     id: cur.id,
   });
+  cur.chars = [];
+  cur.paragraphs = [];
   return cur;
 };
 
+initState[END].action = endSectionAction;
 const inBracketState: State = {
-  ']': { func: () => {}, nextState: initState },
-  ' ': { func: () => {}, nextState: initState }, // To be replaced
-  '\n': { func: () => {}, nextState: initState }, // To be replaced
+  ']': { action: () => {}, nextState: initState },
+  ' ': { action: () => {}, nextState: initState }, // To be replaced
+  '\n': { action: () => {}, nextState: initState }, // To be replaced
   '[': ERROR_OBJ,
-  OTHERS: { func: () => {}, nextState: initState }, // To be replaced
+  OTHERS: { action: () => {}, nextState: initState }, // To be replaced
 };
 
 initState['['].nextState = inBracketState;
+initState['['].action = endSectionAction;
+
 inBracketState['\n'].nextState = inBracketState;
 
 const parse = (text: string) => {
@@ -166,8 +171,8 @@ const parse = (text: string) => {
     if (!(char in state)) {
       next = 'OTHERS';
     }
-    const { func, nextState } = state[next];
-    cur = func(char, cur, i, breakCount, text); // Passing whole the text is memory consuming?
+    const { action, nextState } = state[next];
+    cur = action(char, cur, i, breakCount, text); // Passing whole the text is memory consuming?
     state = nextState;
   };
 
@@ -177,10 +182,9 @@ const parse = (text: string) => {
   }
   step(END);
 
-  const outputJSON = {
+  return {
     sections: cur.sections,
   };
-  return outputJSON;
 };
 
 export { parse };
