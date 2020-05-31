@@ -142,13 +142,19 @@ initState[' '].action = pushCharAction;
 initState['\n'].action = (_char: string, cur: CurrentProps, _i: number, _breakCound: number, _text: string) => {
   const newParagraph = cur.chars.join('');
   cur.paragraphs.push(newParagraph);
+  cur.chars = [];
   return cur;
 };
 initState['\n'].nextState = initState;
+
 const endSectionAction = (_char: string, cur: CurrentProps, _i: number, _breakCound: number, _text: string) => {
   const paragraph = cur.chars.join('');
-  if (cur.paragraphs.length > 0 || paragraph !== '') {
+  cur.chars = [];
+  if (paragraph !== '') {
     cur.paragraphs.push(paragraph);
+  }
+
+  if (cur.paragraphs.length > 0) {
     cur.sections.push({
       paragraphs: cur.paragraphs,
       music: cur.music,
@@ -158,7 +164,6 @@ const endSectionAction = (_char: string, cur: CurrentProps, _i: number, _breakCo
       image: cur.image,
       id: cur.id,
     });
-    cur.chars = [];
     cur.paragraphs = [];
     cur.id += 1;
   }
@@ -187,8 +192,6 @@ const endBracketAction = (char: string, cur: CurrentProps, i: number, breakCount
     errorAction(char, cur, i, breakCount, text);
     return {};
   }
-
-  cur = endSectionAction(char, cur, i, breakCount, text);
 
   // e.g. [bg building] abcccdef [bg ocean] aewww
   if (key === 'bg') {
@@ -294,15 +297,6 @@ afterEndBracketState[' '].action = pushCharAction;
 afterEndBracketState[' '].nextState = initState;
 afterEndBracketState['['].nextState = inBracketBeforeKeyState;
 afterEndBracketState.END.action = endSectionAction;
-
-// console.log({ initState });
-// console.log({ afterEndBracketState });
-// console.log({ inBracketBeforeKeyState });
-// console.log({ inBracketKeyState });
-// console.log({ inBracketAfterKeyState });
-// console.log({ inBracketValueState });
-// console.log({ inBracketAfterValueState });
-// console.log({ afterEndBracketState });
 
 const isStateKey = (key: string): key is StateKey => {
   return STATE_KEYS.includes(key);

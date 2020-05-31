@@ -44,7 +44,7 @@ test('Parse abc[bg building]def', () => {
   });
 });
 
-test.only('Parse [music dance]\n Text begins.', () => {
+test('Parse [music dance]\n Text begins.', () => {
   expect(parse('[music dance]\n Text begins.')).toStrictEqual({
     sections: [
       {
@@ -55,6 +55,33 @@ test.only('Parse [music dance]\n Text begins.', () => {
         bg: '',
         image: '',
         id: 0,
+      },
+    ],
+  });
+});
+
+test('paragraph A.\n[bg laundry]\n[music song]\nParagraph B.', () => {
+  const result = parse('paragraph A.\n[bg laundry]\n[music song]\nParagraph B.');
+  console.log(JSON.stringify(result));
+  expect(parse('paragraph A.\n[bg laundry]\n[music song]\nParagraph B.')).toStrictEqual({
+    sections: [
+      {
+        paragraphs: ['paragraph A.'],
+        music: '',
+        sound: '',
+        filter: '',
+        bg: '',
+        image: '',
+        id: 0,
+      },
+      {
+        paragraphs: ['Paragraph B.'],
+        music: 'song',
+        sound: '',
+        filter: '',
+        bg: 'laundry',
+        image: '',
+        id: 1,
       },
     ],
   });
