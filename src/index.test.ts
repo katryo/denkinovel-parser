@@ -43,3 +43,19 @@ test('Parse abc[bg building]def', () => {
     ],
   });
 });
+
+test.only('Parse [music dance]\n Text begins.', () => {
+  expect(parse('[music dance]\n Text begins.')).toStrictEqual({
+    sections: [
+      {
+        paragraphs: [' Text begins.'],
+        music: 'dance',
+        sound: '',
+        filter: '',
+        bg: '',
+        image: '',
+        id: 0,
+      },
+    ],
+  });
+});

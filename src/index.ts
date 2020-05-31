@@ -75,19 +75,32 @@ const errorAction = (char: string, cur: CurrentProps, i: number, breakCount: num
   throw new Error(`Parse error. Text index: ${i}. Line number: ${breakCount + 1}.\n${text}\n${spaceString}^`);
 };
 
-const ERROR_ACTION_STATE = {
-  action: errorAction,
-  nextState: {},
-};
+const DUMMY_STATE = 'DUMMY_STATE';
+
+interface ActionNextState {
+  action: Function;
+  nextState: State | 'DUMMY_STATE';
+}
+
+const STATE_KEYS = ['[', ']', ' ', '\n', 'END', 'OTHERS'];
+
+type StateKey = '[' | ']' | ' ' | '\n' | 'END' | 'OTHERS';
 
 interface State {
-  [key: string]: {
-    action: Function;
-    nextState: State;
-  };
+  '[': ActionNextState;
+  ']': ActionNextState;
+  ' ': ActionNextState;
+  '\n': ActionNextState;
+  END: ActionNextState;
+  OTHERS: ActionNextState;
 }
 
 type StateAction = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => CurrentProps;
+
+const ERROR_ACTION_STATE: ActionNextState = {
+  action: errorAction,
+  nextState: DUMMY_STATE,
+};
 
 const INIT_PROPS = {
   id: 0,
@@ -107,11 +120,12 @@ const noOpAction: StateAction = (char: string, cur: CurrentProps, i: number, bre
 };
 
 const initState: State = {
-  '[': { action: noOpAction, nextState: {} }, // To be replaced with inBracketState
+  '[': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with inBracketState
   ']': ERROR_ACTION_STATE,
-  '\n': { action: noOpAction, nextState: {} }, // To be replaced
-  END: { action: noOpAction, nextState: {} }, // To be replaced
-  OTHERS: { action: noOpAction, nextState: {} }, // To be replaced
+  '\n': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced
+  END: { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced
+  ' ': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced
+  OTHERS: { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced
 };
 
 const pushCharAction = (char: string, cur: CurrentProps, _i: number, _breakCound: number, _text: string) => {
@@ -121,6 +135,9 @@ const pushCharAction = (char: string, cur: CurrentProps, _i: number, _breakCound
 
 initState.OTHERS.nextState = initState;
 initState.OTHERS.action = pushCharAction;
+initState[' '].nextState = initState;
+initState[' '].action = pushCharAction;
+
 // break action
 initState['\n'].action = (_char: string, cur: CurrentProps, _i: number, _breakCound: number, _text: string) => {
   const newParagraph = cur.chars.join('');
@@ -149,6 +166,19 @@ const endSectionAction = (_char: string, cur: CurrentProps, _i: number, _breakCo
 };
 initState[END].action = endSectionAction;
 
+//----------------------------------------
+
+const afterEndBracketState: State = {
+  '[': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with inBracketState
+  ']': ERROR_ACTION_STATE,
+  '\n': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced
+  END: { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced
+  OTHERS: { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced
+  ' ': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced
+};
+
+//------------------------------------------
+
 const endBracketAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
   const value = cur.chars.join('');
   cur.chars = [];
@@ -158,10 +188,15 @@ const endBracketAction = (char: string, cur: CurrentProps, i: number, breakCount
     return {};
   }
 
+  cur = endSectionAction(char, cur, i, breakCount, text);
+
   // e.g. [bg building] abcccdef [bg ocean] aewww
   if (key === 'bg') {
-    cur = endSectionAction(char, cur, i, breakCount, text);
     cur.bg = value;
+  }
+
+  if (key === 'music') {
+    cur.music = value;
   }
   return cur;
 };
@@ -169,9 +204,11 @@ const endBracketAction = (char: string, cur: CurrentProps, i: number, breakCount
 // [bg  building ]
 //              ^
 const inBracketAfterValueState: State = {
-  ' ': { action: noOpAction, nextState: {} }, // To be replaced with decideKeyAction and inBracketAfterSrcState
-  '\n': { action: noOpAction, nextState: {} }, // To be replaced with decideKeyAction and inBracketAfterSrcState
-  ']': { action: endBracketAction, nextState: initState },
+  ' ': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with decideKeyAction and inBracketAfterSrcState
+  '\n': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with decideKeyAction and inBracketAfterSrcState
+  ']': { action: endBracketAction, nextState: afterEndBracketState },
+  '[': ERROR_ACTION_STATE,
+  END: ERROR_ACTION_STATE,
   OTHERS: ERROR_ACTION_STATE,
 };
 inBracketAfterValueState[' '].nextState = inBracketAfterValueState;
@@ -182,18 +219,21 @@ inBracketAfterValueState['\n'].nextState = inBracketAfterValueState;
 const inBracketValueState: State = {
   ' ': { action: noOpAction, nextState: inBracketAfterValueState },
   '\n': { action: noOpAction, nextState: inBracketAfterValueState },
-  ']': { action: endBracketAction, nextState: initState },
-  OTHERS: { action: pushCharAction, nextState: {} }, // To be replaced with inBracketKeyState
+  ']': { action: endBracketAction, nextState: afterEndBracketState },
+  '[': ERROR_ACTION_STATE,
+  END: ERROR_ACTION_STATE,
+  OTHERS: { action: pushCharAction, nextState: DUMMY_STATE }, // To be replaced with inBracketKeyState
 };
 inBracketValueState[OTHERS].nextState = inBracketValueState;
 
 // [bg  building]
 //    ^
 const inBracketAfterKeyState: State = {
-  ' ': { action: noOpAction, nextState: {} }, // To be replaced with decideKeyAction and inBracketAfterKeyState
-  '\n': { action: noOpAction, nextState: {} }, // To be replaced with decideKeyAction and inBracketAfterKeyState
+  ' ': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with decideKeyAction and inBracketAfterKeyState
+  '\n': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with decideKeyAction and inBracketAfterKeyState
   '[': ERROR_ACTION_STATE,
   ']': ERROR_ACTION_STATE,
+  END: ERROR_ACTION_STATE,
   OTHERS: { action: pushCharAction, nextState: inBracketValueState },
 };
 inBracketAfterKeyState[' '].nextState = inBracketAfterKeyState;
@@ -215,7 +255,10 @@ const keyDetermineAction = (char: string, cur: CurrentProps, i: number, breakCou
 const inBracketKeyState: State = {
   ' ': { action: keyDetermineAction, nextState: inBracketAfterKeyState },
   '\n': { action: keyDetermineAction, nextState: inBracketAfterKeyState },
-  OTHERS: { action: pushCharAction, nextState: {} }, // To be replaced with inBracketKeyState
+  END: ERROR_ACTION_STATE,
+  '[': ERROR_ACTION_STATE,
+  ']': ERROR_ACTION_STATE,
+  OTHERS: { action: pushCharAction, nextState: DUMMY_STATE }, // To be replaced with inBracketKeyState
 };
 inBracketKeyState.OTHERS.nextState = inBracketKeyState;
 
@@ -224,9 +267,10 @@ inBracketKeyState.OTHERS.nextState = inBracketKeyState;
 //  ^
 const inBracketBeforeKeyState: State = {
   ']': ERROR_ACTION_STATE,
-  ' ': { action: noOpAction, nextState: {} }, // To be replaced with inBracketBeforeKeyState
-  '\n': { action: noOpAction, nextState: {} }, // To be replaced with inBracketBeforeKeyState
+  ' ': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with inBracketBeforeKeyState
+  '\n': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with inBracketBeforeKeyState
   '[': ERROR_ACTION_STATE,
+  END: ERROR_ACTION_STATE,
   OTHERS: { action: pushCharAction, nextState: inBracketKeyState },
 };
 inBracketBeforeKeyState[' '].nextState = inBracketBeforeKeyState;
@@ -235,11 +279,40 @@ inBracketBeforeKeyState['\n'].nextState = inBracketBeforeKeyState;
 initState['['].nextState = inBracketBeforeKeyState;
 initState['['].action = endSectionAction;
 
+// TODO: replace afterBracketEndState
+// const afterEndBracketState: State = {
+//   '[': { action: noOpAction, nextState: {} }, // To be replaced with inBracketState
+//   ']': ERROR_ACTION_STATE,
+//   '\n': { action: noOpAction, nextState: initState }, // To be replaced
+//   END: { action: noOpAction, nextState: {} }, // To be replaced
+//   OTHERS: { action: noOpAction, nextState: {} }, // To be replaced
+// };
+afterEndBracketState['\n'].nextState = initState;
+afterEndBracketState.OTHERS.action = pushCharAction;
+afterEndBracketState.OTHERS.nextState = initState;
+afterEndBracketState[' '].action = pushCharAction;
+afterEndBracketState[' '].nextState = initState;
+afterEndBracketState['['].nextState = inBracketBeforeKeyState;
+afterEndBracketState.END.action = endSectionAction;
+
+// console.log({ initState });
+// console.log({ afterEndBracketState });
+// console.log({ inBracketBeforeKeyState });
+// console.log({ inBracketKeyState });
+// console.log({ inBracketAfterKeyState });
+// console.log({ inBracketValueState });
+// console.log({ inBracketAfterValueState });
+// console.log({ afterEndBracketState });
+
+const isStateKey = (key: string): key is StateKey => {
+  return STATE_KEYS.includes(key);
+};
+
 const parse = (text: string) => {
   let cur = JSON.parse(JSON.stringify(INIT_PROPS));
 
   let breakCount = 0;
-  let state = initState;
+  let state: State = initState;
 
   const step = (char: string, i: number) => {
     if (char === '\n') {
@@ -249,9 +322,18 @@ const parse = (text: string) => {
     if (!(char in state)) {
       next = 'OTHERS';
     }
+    if (!isStateKey(next)) {
+      throw new Error(`Given character ${char} is not in the state key.`);
+    }
     const { action, nextState } = state[next];
     cur = action(char, cur, i, breakCount, text); // Passing whole the text is memory consuming?
-    state = nextState;
+    if (nextState === DUMMY_STATE) {
+      if (i < text.length - 1) {
+        throw new Error('DUMMY_STATE.');
+      }
+    } else {
+      state = nextState;
+    }
   };
 
   for (let i = 0; i < text.length; i++) {
