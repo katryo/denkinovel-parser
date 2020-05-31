@@ -1,3 +1,5 @@
+{ "compileOnSave": false }
+
 {
   "compilerOptions": {
     "target": "es5",
@@ -10,6 +12,5 @@
     "types": ["node", "jest"],
     "esModuleInterop": true,
     "resolveJsonModule": true
-  },
-  "exclude": ["__tests__/*", "output", "lib"]
+  }
 }
