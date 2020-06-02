@@ -11,16 +11,16 @@ import { parseTextToSections } from './parse';
 
 const output = {
   episode: {
-    series_title: 'Zombie Story',
-    episode_title: 'Episode 1',
+    seriesTitle: 'Zombie Story',
+    episodeTitle: 'Episode 1',
     creator: 'katryo',
     sections: [],
-    audio_map: { 'lets-dance': 'https://katryomusic.s3.amazonaws.com/lets_dance.mp3' },
-    image_map: { building: 'https://denkinovel-dev-test.s3.amazonaws.com/nyc-building.jpg' },
-    color_map: { black: '#000000', white: '#ffffff' },
-    default_bg: 'black',
-    default_filter: 'black',
-    default_text_color: 'white',
+    audioMap: { 'lets-dance': 'https://katryomusic.s3.amazonaws.com/lets_dance.mp3' },
+    imageMap: { building: 'https://denkinovel-dev-test.s3.amazonaws.com/nyc-building.jpg' },
+    colorMap: { black: '#000000', white: '#ffffff' },
+    defaultBg: 'black',
+    defaultFilter: 'black',
+    defaultTextColor: 'white',
   },
 };
 

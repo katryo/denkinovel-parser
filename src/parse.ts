@@ -26,9 +26,9 @@ interface CurrentProps {
 const END = 'END';
 const OTHERS = 'OTHERS';
 const DEFAULT_BG = '';
-const DEFAULT_MUSIC = '';
+const DEFAULT_MUSIC = 'none';
 const DEFAULT_SOUND = '';
-const DEFAULT_FILTER = '';
+const DEFAULT_FILTER = 'black';
 const DEFAULT_IMAGE = '';
 const VALID_BRACKET_KEYS = ['bg', 'music', 'image', 'filter'];
 
