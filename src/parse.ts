@@ -28,7 +28,7 @@ const OTHERS = 'OTHERS';
 const DEFAULT_BG = '';
 const DEFAULT_MUSIC = 'none';
 const DEFAULT_SOUND = '';
-const DEFAULT_FILTER = 'black';
+const DEFAULT_FILTER = '';
 const DEFAULT_IMAGE = '';
 const VALID_BRACKET_KEYS = ['bg', 'music', 'image', 'filter'];
 
@@ -218,6 +218,21 @@ const keyDetermineAction = (char: string, cur: CurrentProps, i: number, breakCou
   return cur;
 };
 
+const singleKeywordAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {};
+
+// [ page  ]x
+//          ^
+const singleKeywordBracketEndState: State = {
+  ' ': { action: pushCharAction, nextState: initState },
+  '\n': { action: noOpAction, nextState: initState },
+  END: { action: noOpAction, nextState: DUMMY_STATE },
+  '[': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with inBracketBeforeKeyState
+  ']': ERROR_ACTION_STATE,
+  OTHERS: { action: pushCharAction, nextState: initState },
+};
+
+//------------------------------------
+
 // [ bg building]
 //   ^
 //    ^
@@ -226,10 +241,12 @@ const inBracketKeyState: State = {
   '\n': { action: keyDetermineAction, nextState: inBracketAfterKeyState },
   END: ERROR_ACTION_STATE,
   '[': ERROR_ACTION_STATE,
-  ']': ERROR_ACTION_STATE,
+  ']': { action: singleKeywordAction, nextState: singleKeywordBracketEndState },
   OTHERS: { action: pushCharAction, nextState: DUMMY_STATE }, // To be replaced with inBracketKeyState
 };
 inBracketKeyState.OTHERS.nextState = inBracketKeyState;
+
+//------------------------------------
 
 // [ bg building]
 // ^
@@ -244,18 +261,11 @@ const inBracketBeforeKeyState: State = {
 };
 inBracketBeforeKeyState[' '].nextState = inBracketBeforeKeyState;
 inBracketBeforeKeyState['\n'].nextState = inBracketBeforeKeyState;
+singleKeywordBracketEndState['['].nextState = inBracketBeforeKeyState;
 
 initState['['].nextState = inBracketBeforeKeyState;
 initState['['].action = endSectionAction;
 
-// TODO: replace afterBracketEndState
-// const afterEndBracketState: State = {
-//   '[': { action: noOpAction, nextState: {} }, // To be replaced with inBracketState
-//   ']': ERROR_ACTION_STATE,
-//   '\n': { action: noOpAction, nextState: initState }, // To be replaced
-//   END: { action: noOpAction, nextState: {} }, // To be replaced
-//   OTHERS: { action: noOpAction, nextState: {} }, // To be replaced
-// };
 afterEndBracketState['\n'].nextState = initState;
 afterEndBracketState.OTHERS.action = pushCharAction;
 afterEndBracketState.OTHERS.nextState = initState;
@@ -268,7 +278,7 @@ const isStateKey = (key: string): key is StateKey => {
   return STATE_KEYS.includes(key);
 };
 
-const parseTextToSections = (text: string) => {
+const parse = (text: string) => {
   let cur = JSON.parse(JSON.stringify(INIT_PROPS));
 
   let breakCount = 0;
@@ -305,4 +315,4 @@ const parseTextToSections = (text: string) => {
   return cur.sections;
 };
 
-export { parseTextToSections };
+export { parse };
