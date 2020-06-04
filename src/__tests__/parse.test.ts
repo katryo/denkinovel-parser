@@ -4,11 +4,12 @@ test('Parse a no-tag text', () => {
   expect(parse('Cool beans.')).toStrictEqual([
     {
       paragraphs: ['Cool beans.'],
-      music: 'none',
+      music: 'stop',
       sound: '',
       filter: '',
       bg: '',
       image: '',
+      page: 0,
       id: 0,
     },
   ]);
@@ -21,20 +22,22 @@ test('Parse abc[bg building]def', () => {
   expect(result).toStrictEqual([
     {
       paragraphs: ['abc'],
-      music: 'none',
+      music: 'stop',
       sound: '',
       filter: '',
       bg: '',
       image: '',
+      page: 0,
       id: 0,
     },
     {
       paragraphs: ['def'],
-      music: 'none',
+      music: 'stop',
       sound: '',
       filter: '',
       bg: 'building',
       image: '',
+      page: 0,
       id: 1,
     },
   ]);
@@ -49,6 +52,7 @@ test('Parse [music dance]\n Text begins.', () => {
       filter: '',
       bg: '',
       image: '',
+      page: 0,
       id: 0,
     },
   ]);
@@ -56,15 +60,15 @@ test('Parse [music dance]\n Text begins.', () => {
 
 test('paragraph A.\n[bg laundry]\n[music song]\nParagraph B.', () => {
   const result = parse('paragraph A.\n[bg laundry]\n[music song]\nParagraph B.');
-  console.log(JSON.stringify(result));
   expect(parse('paragraph A.\n[bg laundry]\n[music song]\nParagraph B.')).toStrictEqual([
     {
       paragraphs: ['paragraph A.'],
-      music: 'none',
+      music: 'stop',
       sound: '',
       filter: '',
       bg: '',
       image: '',
+      page: 0,
       id: 0,
     },
     {
@@ -74,6 +78,33 @@ test('paragraph A.\n[bg laundry]\n[music song]\nParagraph B.', () => {
       filter: '',
       bg: 'laundry',
       image: '',
+      page: 0,
+      id: 1,
+    },
+  ]);
+});
+
+test('Page 0 text.\nStill page 0 text.\n[page]\nPage 1 text.\nThis is also a page 1 text.', () => {
+  const result = parse('Page 0 text.\nStill page 0 text.\n[page]\nPage 1 text.\nThis is also a page 1 text.');
+  expect(result).toStrictEqual([
+    {
+      paragraphs: ['Page 0 text.', 'Still page 0 text.'],
+      music: 'stop',
+      sound: '',
+      filter: '',
+      bg: '',
+      image: '',
+      page: 0,
+      id: 0,
+    },
+    {
+      paragraphs: ['Page 1 text.', 'This is also a page 1 text.'],
+      music: 'stop',
+      sound: '',
+      filter: '',
+      bg: '',
+      image: '',
+      page: 1,
       id: 1,
     },
   ]);

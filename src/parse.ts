@@ -7,11 +7,13 @@ interface Section {
   filter: string;
   bg: string;
   image: string;
+  page: number;
   id: number;
 }
 
 interface CurrentProps {
   id: number;
+  page: number;
   music: string;
   sound: string;
   bg: string;
@@ -25,8 +27,9 @@ interface CurrentProps {
 
 const END = 'END';
 const OTHERS = 'OTHERS';
+const PAGE = 'page';
 const DEFAULT_BG = '';
-const DEFAULT_MUSIC = 'none';
+const DEFAULT_MUSIC = 'stop';
 const DEFAULT_SOUND = '';
 const DEFAULT_FILTER = '';
 const DEFAULT_IMAGE = '';
@@ -70,6 +73,7 @@ const ERROR_ACTION_STATE: ActionNextState = {
 
 const INIT_PROPS = {
   id: 0,
+  page: 0,
   music: DEFAULT_MUSIC,
   sound: DEFAULT_SOUND,
   bg: DEFAULT_BG,
@@ -128,6 +132,7 @@ const endSectionAction = (_char: string, cur: CurrentProps, _i: number, _breakCo
       filter: cur.filter,
       bg: cur.bg,
       image: cur.image,
+      page: cur.page,
       id: cur.id,
     });
     cur.paragraphs = [];
@@ -218,18 +223,26 @@ const keyDetermineAction = (char: string, cur: CurrentProps, i: number, breakCou
   return cur;
 };
 
-const singleKeywordAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {};
-
-// [ page  ]x
-//          ^
-const singleKeywordBracketEndState: State = {
-  ' ': { action: pushCharAction, nextState: initState },
-  '\n': { action: noOpAction, nextState: initState },
-  END: { action: noOpAction, nextState: DUMMY_STATE },
-  '[': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with inBracketBeforeKeyState
-  ']': ERROR_ACTION_STATE,
-  OTHERS: { action: pushCharAction, nextState: initState },
+const singleKeywordTagEndAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
+  if (cur.chars.join('') === PAGE) {
+    cur.chars = [];
+    cur.page += 1;
+    return cur;
+  }
+  errorAction(char, cur, i, breakCount, text);
+  return {};
 };
+
+// // [ page  ]x
+// //          ^
+// const singleKeywordBracketEndState: State = {
+//   ' ': { action: pushCharAction, nextState: initState },
+//   '\n': { action: noOpAction, nextState: initState },
+//   END: { action: noOpAction, nextState: DUMMY_STATE },
+//   '[': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with inBracketBeforeKeyState
+//   ']': ERROR_ACTION_STATE,
+//   OTHERS: { action: pushCharAction, nextState: initState },
+// };
 
 //------------------------------------
 
@@ -241,7 +254,7 @@ const inBracketKeyState: State = {
   '\n': { action: keyDetermineAction, nextState: inBracketAfterKeyState },
   END: ERROR_ACTION_STATE,
   '[': ERROR_ACTION_STATE,
-  ']': { action: singleKeywordAction, nextState: singleKeywordBracketEndState },
+  ']': { action: singleKeywordTagEndAction, nextState: afterEndBracketState },
   OTHERS: { action: pushCharAction, nextState: DUMMY_STATE }, // To be replaced with inBracketKeyState
 };
 inBracketKeyState.OTHERS.nextState = inBracketKeyState;
@@ -261,7 +274,7 @@ const inBracketBeforeKeyState: State = {
 };
 inBracketBeforeKeyState[' '].nextState = inBracketBeforeKeyState;
 inBracketBeforeKeyState['\n'].nextState = inBracketBeforeKeyState;
-singleKeywordBracketEndState['['].nextState = inBracketBeforeKeyState;
+// singleKeywordBracketEndState['['].nextState = inBracketBeforeKeyState;
 
 initState['['].nextState = inBracketBeforeKeyState;
 initState['['].action = endSectionAction;

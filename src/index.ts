@@ -32,7 +32,7 @@ const text = fs.readFileSync(inputPath, 'utf8');
 
 const outputPath = path.join(process.cwd(), 'output', 'episode.json');
 
-const sections = parseTextToSections(text);
+const sections = parse(text);
 output.episode.sections = sections;
 
 fs.writeFileSync(outputPath, JSON.stringify(output), 'utf8');
