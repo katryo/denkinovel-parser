@@ -12,12 +12,12 @@ import { parse } from './parse';
 const output = {
   episode: {
     seriesTitle: 'Zombie Story',
-    episodeTitle: 'Episode 1',
+    episodeTitle: '1話　ニューヨークのアパートメントにて',
     creator: 'katryo',
-    sections: [],
-    audioMap: { 'lets-dance': 'https://katryomusic.s3.amazonaws.com/lets_dance.mp3' },
-    imageMap: { building: 'https://denkinovel-dev-test.s3.amazonaws.com/nyc-building.jpg' },
-    colorMap: { black: '#000000', white: '#ffffff' },
+    pages: [],
+    audioMapping: { 'lets-dance': 'https://katryomusic.s3.amazonaws.com/lets_dance.mp3' },
+    imageMapping: { building: 'https://denkinovel-dev-test.s3.amazonaws.com/nyc-building.jpg' },
+    colorMapping: { black: '#000000', white: '#ffffff' },
     defaultBg: 'black',
     defaultFilter: 'black',
     defaultTextColor: 'white',
@@ -32,7 +32,7 @@ const text = fs.readFileSync(inputPath, 'utf8');
 
 const outputPath = path.join(process.cwd(), 'output', 'episode.json');
 
-const sections = parse(text);
-output.episode.sections = sections;
+const pages = parse(text);
+output.episode.pages = pages;
 
 fs.writeFileSync(outputPath, JSON.stringify(output), 'utf8');
