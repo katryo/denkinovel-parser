@@ -6,7 +6,7 @@ test('Parse a no-tag text', () => {
       sections: [
         {
           paragraphs: ['Cool beans.'],
-          music: 'stop',
+          music: '',
           sound: '',
           filter: '',
           bg: '',
@@ -28,7 +28,7 @@ test('Parse abc[bg building]def', () => {
       sections: [
         {
           paragraphs: ['abc'],
-          music: 'stop',
+          music: '',
           sound: '',
           filter: '',
           bg: '',
@@ -37,7 +37,7 @@ test('Parse abc[bg building]def', () => {
         },
         {
           paragraphs: ['def'],
-          music: 'stop',
+          music: '',
           sound: '',
           filter: '',
           bg: 'building',
@@ -75,7 +75,7 @@ test('paragraph A.\n[bg laundry]\n[music song]\nParagraph B.', () => {
       sections: [
         {
           paragraphs: ['paragraph A.'],
-          music: 'stop',
+          music: '',
           sound: '',
           filter: '',
           bg: '',
@@ -104,7 +104,7 @@ test('Page 0 text.\nStill page 0 text.\n[page]\nPage 1 text.\nThis is also a pag
       sections: [
         {
           paragraphs: ['Page 0 text.', 'Still page 0 text.'],
-          music: 'stop',
+          music: '',
           sound: '',
           filter: '',
           bg: '',
@@ -118,7 +118,7 @@ test('Page 0 text.\nStill page 0 text.\n[page]\nPage 1 text.\nThis is also a pag
       sections: [
         {
           paragraphs: ['Page 1 text.', 'This is also a page 1 text.'],
-          music: 'stop',
+          music: '',
           sound: '',
           filter: '',
           bg: '',
