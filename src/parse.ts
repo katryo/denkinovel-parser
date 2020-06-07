@@ -233,17 +233,6 @@ const singleKeywordTagEndAction = (char: string, cur: CurrentProps, i: number, b
   return {};
 };
 
-// // [ page  ]x
-// //          ^
-// const singleKeywordBracketEndState: State = {
-//   ' ': { action: pushCharAction, nextState: initState },
-//   '\n': { action: noOpAction, nextState: initState },
-//   END: { action: noOpAction, nextState: DUMMY_STATE },
-//   '[': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with inBracketBeforeKeyState
-//   ']': ERROR_ACTION_STATE,
-//   OTHERS: { action: pushCharAction, nextState: initState },
-// };
-
 //------------------------------------
 
 // [ bg building]
