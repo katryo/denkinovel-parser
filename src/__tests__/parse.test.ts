@@ -3,13 +3,17 @@ import { parse } from '../parse';
 test('Parse a no-tag text', () => {
   expect(parse('Cool beans.')).toStrictEqual([
     {
-      paragraphs: ['Cool beans.'],
-      music: 'stop',
-      sound: '',
-      filter: '',
-      bg: '',
-      image: '',
-      page: 0,
+      sections: [
+        {
+          paragraphs: ['Cool beans.'],
+          music: 'stop',
+          sound: '',
+          filter: '',
+          bg: '',
+          image: '',
+          id: 0,
+        },
+      ],
       id: 0,
     },
   ]);
@@ -21,24 +25,28 @@ test('Parse abc[bg building]def', () => {
 
   expect(result).toStrictEqual([
     {
-      paragraphs: ['abc'],
-      music: 'stop',
-      sound: '',
-      filter: '',
-      bg: '',
-      image: '',
-      page: 0,
-      id: 0,
-    },
-    {
-      paragraphs: ['def'],
-      music: 'stop',
-      sound: '',
-      filter: '',
-      bg: 'building',
-      image: '',
-      page: 0,
-      id: 1,
+      sections: [
+        {
+          paragraphs: ['abc'],
+          music: 'stop',
+          sound: '',
+          filter: '',
+          bg: '',
+          image: '',
+          page: 0,
+          id: 0,
+        },
+        {
+          paragraphs: ['def'],
+          music: 'stop',
+          sound: '',
+          filter: '',
+          bg: 'building',
+          image: '',
+          page: 0,
+          id: 1,
+        },
+      ],
     },
   ]);
 });
