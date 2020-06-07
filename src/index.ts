@@ -19,6 +19,8 @@ const output = {
     imageMapping: {
       building: 'https://denkinovel-dev-test.s3.amazonaws.com/nyc-building.jpg',
       bt: 'https://denkinovel-dev-test.s3.amazonaws.com/bt.jpg',
+      laundry: 'https://denkinovel-dev-test.s3.amazonaws.com/laundry.jpg',
+      window: 'https://denkinovel-dev-test.s3.amazonaws.com/window.jpg',
     },
     colorMapping: { black: '#000000', white: '#ffffff', pink: '#fecbc8', blue: '#dceff5', green: '#dcfec8' },
     defaultBg: 'black',
