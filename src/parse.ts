@@ -7,13 +7,17 @@ interface Section {
   filter: string;
   bg: string;
   image: string;
-  page: number;
+  id: number;
+}
+
+interface Page {
+  sections: Section[];
   id: number;
 }
 
 interface CurrentProps {
   id: number;
-  page: number;
+  pageId: number;
   music: string;
   sound: string;
   bg: string;
@@ -23,6 +27,7 @@ interface CurrentProps {
   chars: string[];
   bracketKey: string;
   sections: Section[];
+  pages: Page[];
 }
 
 const END = 'END';
@@ -73,7 +78,7 @@ const ERROR_ACTION_STATE: ActionNextState = {
 
 const INIT_PROPS = {
   id: 0,
-  page: 0,
+  pageId: 0,
   music: DEFAULT_MUSIC,
   sound: DEFAULT_SOUND,
   bg: DEFAULT_BG,
@@ -82,6 +87,7 @@ const INIT_PROPS = {
   paragraphs: [],
   chars: [],
   sections: [],
+  pages: [],
   bracketKey: '',
 };
 
@@ -132,7 +138,6 @@ const endSectionAction = (_char: string, cur: CurrentProps, _i: number, _breakCo
       filter: cur.filter,
       bg: cur.bg,
       image: cur.image,
-      page: cur.page,
       id: cur.id,
     });
     cur.paragraphs = [];
@@ -140,7 +145,6 @@ const endSectionAction = (_char: string, cur: CurrentProps, _i: number, _breakCo
   }
   return cur;
 };
-initState[END].action = endSectionAction;
 
 //----------------------------------------
 
@@ -226,13 +230,24 @@ const keyDetermineAction = (char: string, cur: CurrentProps, i: number, breakCou
 const singleKeywordTagEndAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
   if (cur.chars.join('') === PAGE) {
     cur.chars = [];
-    cur.page += 1;
+    cur.pages.push({ sections: cur.sections, id: cur.pageId });
+    cur.pageId += 1;
+    cur.sections = [];
     return cur;
   }
   errorAction(char, cur, i, breakCount, text);
   return {};
 };
 
+const sectionEndPageEndAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
+  const nextCur = endSectionAction(char, cur, i, breakCount, text);
+  nextCur.pages.push({ sections: cur.sections, id: nextCur.pageId });
+  nextCur.sections = [];
+  nextCur.pageId += 1;
+  return nextCur;
+};
+
+initState[END].action = sectionEndPageEndAction;
 //------------------------------------
 
 // [ bg building]
@@ -274,7 +289,7 @@ afterEndBracketState.OTHERS.nextState = initState;
 afterEndBracketState[' '].action = pushCharAction;
 afterEndBracketState[' '].nextState = initState;
 afterEndBracketState['['].nextState = inBracketBeforeKeyState;
-afterEndBracketState.END.action = endSectionAction;
+afterEndBracketState.END.action = sectionEndPageEndAction;
 
 const isStateKey = (key: string): key is StateKey => {
   return STATE_KEYS.includes(key);
@@ -314,7 +329,7 @@ const parse = (text: string) => {
   }
   step(END, text.length - 1);
 
-  return cur.sections;
+  return cur.pages;
 };
 
 export { parse };
