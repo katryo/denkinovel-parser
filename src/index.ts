@@ -16,7 +16,10 @@ const output = {
     creator: 'katryo',
     pages: [],
     audioMapping: { 'lets-dance': 'https://katryomusic.s3.amazonaws.com/lets_dance.mp3' },
-    imageMapping: { building: 'https://denkinovel-dev-test.s3.amazonaws.com/nyc-building.jpg' },
+    imageMapping: {
+      building: 'https://denkinovel-dev-test.s3.amazonaws.com/nyc-building.jpg',
+      bt: 'https://denkinovel-dev-test.s3.amazonaws.com/bt.jpg',
+    },
     colorMapping: { black: '#000000', white: '#ffffff', pink: '#fecbc8', blue: '#dceff5', green: '#dcfec8' },
     defaultBg: 'black',
     defaultMusic: '',

@@ -141,6 +141,8 @@ const endSectionAction = (_char: string, cur: CurrentProps, _i: number, _breakCo
       id: cur.id,
     });
     cur.paragraphs = [];
+    cur.sound = DEFAULT_SOUND;
+    cur.image = DEFAULT_IMAGE;
     cur.id += 1;
   }
   return cur;
@@ -168,13 +170,20 @@ const endBracketAction = (char: string, cur: CurrentProps, i: number, breakCount
     return {};
   }
 
-  // e.g. [bg building] abcccdef [bg ocean] aewww
-  if (key === 'bg') {
-    cur.bg = value;
-  }
-
-  if (key === 'music') {
-    cur.music = value;
+  switch (key) {
+    // e.g. [bg building] abcccdef [bg ocean] aewww
+    case 'bg':
+      cur.bg = value;
+      break;
+    case 'music':
+      cur.music = value;
+      break;
+    case 'sound':
+      cur.sound = value;
+      break;
+    case 'image':
+      cur.image = value;
+      break;
   }
   return cur;
 };
