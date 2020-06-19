@@ -262,6 +262,27 @@ describe('When a tags are correct,', (): void=> {
       expect(response).toStrictEqual(expected);
     });
 
+    test('twice same tags', (): void => {
+      const response: string = parse(`[bg bgvalue1][bg bgvalue2]paragraph`);
+      const expected = [
+        {
+          id: 0,
+          sections: [
+            {
+              'id': 0,
+              'bg': 'bgvalue2',
+              'music': '',
+              'sound': '',
+              'image': '',
+              'filter': '',
+              'paragraphs': ['paragraph']
+            }
+          ]
+        }
+      ]
+      expect(response).toStrictEqual(expected);
+    });
+
     test('multiple', (): void => {
       const response: string = parse(`[music musicvalue][filter filtervalue][sound soundvalue][image imagevalue][bg bgvalue]paragraph`);
       const expected = [
@@ -281,7 +302,7 @@ describe('When a tags are correct,', (): void=> {
         }
       ]
       expect(response).toStrictEqual(expected);
-    });
+    });    
   });
 });
 
