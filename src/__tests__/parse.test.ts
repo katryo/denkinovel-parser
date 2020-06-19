@@ -53,6 +53,13 @@ describe('When a section does not have any tag should return only paragraphs', (
         ' Text begins.'
       ]
     ],
+    [
+      'should trim ending line breaks',
+      ' Text ends.\n',
+      [
+        ' Text ends.'
+      ]
+    ],
   ])
   ('%s', (title, paragraph, expectedParagraphs): void => {
     const response: string = parse(`${paragraph}`);
@@ -167,25 +174,6 @@ describe('When a tags are correct,', (): void=> {
     ('Incorrect key name and correct key name (%s,%s)', (incorrectKeyName, correctKeyname): void => {
       expect(()=> {parse(`[${incorrectKeyName} value]paragraph1[${correctKeyname} value]paragraph2`)}).toThrow(Error);
     });
-
-    test('should trim leading line breaks', () => {
-      expect(parse('[music dance]\n Text begins.')).toStrictEqual([
-        {
-          sections: [
-            {
-              paragraphs: [' Text begins.'],
-              music: 'dance',
-              sound: '',
-              filter: '',
-              bg: '',
-              image: '',
-              id: 0,
-            },
-          ],
-          id: 0,
-        },
-      ]);
-    });
   })
   
   describe('and key names are correct, parsed object should be return', (): void=> {
@@ -282,7 +270,7 @@ describe('When a tags are correct,', (): void=> {
       ]
       expect(response).toStrictEqual(expected);
     });
-
+    
     test('multiple', (): void => {
       const response: string = parse(`[music musicvalue][filter filtervalue][sound soundvalue][image imagevalue][bg bgvalue]paragraph`);
       const expected = [
@@ -302,7 +290,66 @@ describe('When a tags are correct,', (): void=> {
         }
       ]
       expect(response).toStrictEqual(expected);
-    });    
+    }); 
+    
+    test('should remove line break between tags', (): void => {
+      const response: string = parse(`[bg bgvalue]\n[music musicvalue]paragraph`);
+      const expected = [
+        {
+          id: 0,
+          sections: [
+            {
+              'id': 0,
+              'bg': 'bgvalue',
+              'music': 'musicvalue',
+              'sound': '',
+              'image': '',
+              'filter': '',
+              'paragraphs': ['paragraph']
+            }
+          ]
+        }
+      ]
+      expect(response).toStrictEqual(expected);
+    });
+
+    test('should trim leading line breaks', () => {
+      expect(parse('[music dance]\n Text begins.')).toStrictEqual([
+        {
+          sections: [
+            {
+              paragraphs: [' Text begins.'],
+              music: 'dance',
+              sound: '',
+              filter: '',
+              bg: '',
+              image: '',
+              id: 0,
+            },
+          ],
+          id: 0,
+        },
+      ]);
+    });
+
+    test('should trim ending line breaks', () => {
+      expect(parse('[music dance] Text ends.\n')).toStrictEqual([
+        {
+          sections: [
+            {
+              paragraphs: [' Text ends.'],
+              music: 'dance',
+              sound: '',
+              filter: '',
+              bg: '',
+              image: '',
+              id: 0,
+            },
+          ],
+          id: 0,
+        },
+      ]);
+    });
   });
 });
 
