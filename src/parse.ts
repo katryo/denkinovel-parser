@@ -38,7 +38,7 @@ const DEFAULT_MUSIC = '';
 const DEFAULT_SOUND = '';
 const DEFAULT_FILTER = '';
 const DEFAULT_IMAGE = '';
-const VALID_BRACKET_KEYS = ['bg', 'music', 'image', 'filter'];
+const VALID_BRACKET_KEYS = ['bg', 'music', 'sound', 'image', 'filter'];
 
 const errorAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
   const spaces = [];
@@ -184,6 +184,9 @@ const endBracketAction = (char: string, cur: CurrentProps, i: number, breakCount
     case 'image':
       cur.image = value;
       break;
+    case 'filter':
+      cur.filter = value;
+      break;
   }
   return cur;
 };
@@ -191,8 +194,8 @@ const endBracketAction = (char: string, cur: CurrentProps, i: number, breakCount
 // [bg  building ]
 //              ^
 const inBracketAfterValueState: State = {
-  ' ': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with decideKeyAction and inBracketAfterSrcState
-  '\n': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with decideKeyAction and inBracketAfterSrcState
+  ' ': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with keyDetermineAction and inBracketAfterSrcState
+  '\n': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with keyDetermineAction and inBracketAfterSrcState
   ']': { action: endBracketAction, nextState: afterEndBracketState },
   '[': ERROR_ACTION_STATE,
   END: ERROR_ACTION_STATE,
@@ -216,8 +219,8 @@ inBracketValueState[OTHERS].nextState = inBracketValueState;
 // [bg  building]
 //    ^
 const inBracketAfterKeyState: State = {
-  ' ': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with decideKeyAction and inBracketAfterKeyState
-  '\n': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with decideKeyAction and inBracketAfterKeyState
+  ' ': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with keyDetermineAction and inBracketAfterKeyState
+  '\n': { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced with keyDetermineAction and inBracketAfterKeyState
   '[': ERROR_ACTION_STATE,
   ']': ERROR_ACTION_STATE,
   END: ERROR_ACTION_STATE,
