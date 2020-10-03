@@ -46,6 +46,18 @@ const imageMapping = {
     small: 'https://denkinovel-dev-test.s3.amazonaws.com/market-small.jpg',
     large: 'https://denkinovel-dev-test.s3.amazonaws.com/market-large.jpg',
   },
+  intrepid: {
+    small: 'https://denkinovel-dev-test.s3.amazonaws.com/intrepid-long-small.jpg',
+    large: 'https://denkinovel-dev-test.s3.amazonaws.com/intrepid-long.jpg',
+  },
+  intrepid2: {
+    small: 'https://denkinovel-dev-test.s3.amazonaws.com/intrepid-entrance-small.jpg',
+    large: 'https://denkinovel-dev-test.s3.amazonaws.com/intrepid-entrance.jpg',
+  },
+  intrepid3: {
+    small: 'https://denkinovel-dev-test.s3.amazonaws.com/intrepid-inside-small.jpg',
+    large: 'https://denkinovel-dev-test.s3.amazonaws.com/intrepid-inside.jpg',
+  },
 };
 
 const audioMapping = { 'lets-dance': 'https://katryomusic.s3.amazonaws.com/lets_dance.mp3' };
@@ -63,13 +75,29 @@ const defaultProps = {
   defaultTextColor: 'white',
 };
 
-const output = {
-  episode: {
-    ...defaultProps,
-    episodeTitle: '1話　ニューヨークのアパートメントにて',
+const episodes = [
+  {
+    episode: {
+      ...defaultProps,
+      episodeTitle: '1話　ニューヨークに透明人間があらわれる',
+    },
+    formatVersion: 1,
   },
-  formatVersion: 1,
-};
+  {
+    episode: {
+      ...defaultProps,
+      episodeTitle: '2話　スーパーマーケットで透明人間に遭遇',
+    },
+    formatVersion: 1,
+  },
+  {
+    episode: {
+      ...defaultProps,
+      episodeTitle: '3話　異世界から来たインド人に出会う',
+    },
+    formatVersion: 1,
+  },
+];
 
 // console.log(chalk.red(figlet.textSync('denkinovel-parser')))
 
@@ -78,7 +106,8 @@ for (const num of [1, 2, 3]) {
   const text = fs.readFileSync(inputPath, 'utf8');
   const outputPath = path.join(process.cwd(), 'output', `episode-${num}.json`);
   const pages = parse(text);
-  output.episode.pages = pages;
+  const episode = episodes[num - 1];
+  episode.episode.pages = pages;
 
-  fs.writeFileSync(outputPath, JSON.stringify(output), 'utf8');
+  fs.writeFileSync(outputPath, JSON.stringify(episode), 'utf8');
 }
