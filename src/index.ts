@@ -10,6 +10,10 @@ const program = require('commander');
 import { parse } from './parse';
 
 const imageMapping = {
+  apartment: {
+    small: 'https://denkinovel-dev-test.s3.amazonaws.com/laptop-small.jpg',
+    large: 'https://denkinovel-dev-test.s3.amazonaws.com/laptop-large.jpg',
+  },
   building: {
     small: 'https://denkinovel-dev-test.s3.amazonaws.com/nyc-building.jpg',
     large: 'https://denkinovel-dev-test.s3.amazonaws.com/nyc-building.jpg',
