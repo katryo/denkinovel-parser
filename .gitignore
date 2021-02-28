@@ -173,3 +173,4 @@ typings/
 lib/*
 input/*
 output/*
+.DS_Store
