@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import fs from 'fs';
-const chalk = require('chalk');
-const clear = require('clear');
-const figlet = require('figlet');
-const path = require('path');
-const program = require('commander');
+import path from 'path';
+// const chalk = require('chalk');
+// const clear = require('clear');
+// const figlet = require('figlet');
+// const program = require('commander');
 
 import { parse } from './parse';
 
@@ -83,21 +83,21 @@ const episodes = [
   {
     episode: {
       ...defaultProps,
-      episodeTitle: '1話　ニューヨークに透明人間があらわれる',
+      episodeTitle: '1話　ユキ、人に噛まれる',
     },
     formatVersion: 1,
   },
   {
     episode: {
       ...defaultProps,
-      episodeTitle: '2話　スーパーマーケットで透明人間に遭遇',
+      episodeTitle: '2話　スーパーマーケットで食料を漁るぞ',
     },
     formatVersion: 1,
   },
   {
     episode: {
       ...defaultProps,
-      episodeTitle: '3話　異世界から来たインド人に出会う',
+      episodeTitle: '3話　これまでのあらすじ',
     },
     formatVersion: 1,
   },
