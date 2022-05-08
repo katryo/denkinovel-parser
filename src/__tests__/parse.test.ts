@@ -1,4 +1,5 @@
 import { parse } from '../parse';
+import { describe, it, expect, test } from 'vitest';
 
 describe('When a section does not have any tag should return only paragraphs', (): void => {
   it.each([
