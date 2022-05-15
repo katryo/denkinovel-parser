@@ -40,7 +40,17 @@ const DEFAULT_FILTER = '';
 const DEFAULT_IMAGE = '';
 const VALID_BRACKET_KEYS = ['bg', 'music', 'sound', 'image', 'filter'];
 
-const errorAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
+const errorAction: StateAction = ({
+  i,
+  breakCount,
+  text,
+}: {
+  char: string;
+  cur: CurrentProps;
+  i: number;
+  breakCount: number;
+  text: string;
+}) => {
   const spaces = [];
   for (let index = 0; index < i; index++) {
     spaces.push(' ');
@@ -52,7 +62,7 @@ const errorAction = (char: string, cur: CurrentProps, i: number, breakCount: num
 const DUMMY_STATE = 'DUMMY_STATE';
 
 interface ActionNextState {
-  action: Function;
+  action: StateAction;
   nextState: State | 'DUMMY_STATE';
 }
 
@@ -69,7 +79,15 @@ interface State {
   OTHERS: ActionNextState;
 }
 
-type StateAction = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => CurrentProps;
+interface ActionInput {
+  char: string;
+  cur: CurrentProps;
+  i: number;
+  breakCount: number;
+  text: string;
+}
+
+type StateAction = (actionInput: ActionInput) => CurrentProps;
 
 const ERROR_ACTION_STATE: ActionNextState = {
   action: errorAction,
@@ -91,7 +109,7 @@ const INIT_PROPS = {
   bracketKey: '',
 };
 
-const noOpAction: StateAction = (char: string, cur: CurrentProps, i: number, breakCound: number, text: string) => {
+const noOpAction: StateAction = ({ cur }: ActionInput) => {
   return cur;
 };
 
@@ -104,7 +122,7 @@ const initState: State = {
   OTHERS: { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced
 };
 
-const pushCharAction = (char: string, cur: CurrentProps, _i: number, _breakCound: number, _text: string) => {
+const pushCharAction: StateAction = ({ cur, char }: ActionInput) => {
   cur.chars.push(char);
   return cur;
 };
@@ -115,7 +133,7 @@ initState[' '].nextState = initState;
 initState[' '].action = pushCharAction;
 
 // break action
-initState['\n'].action = (_char: string, cur: CurrentProps, _i: number, _breakCound: number, _text: string) => {
+initState['\n'].action = ({ cur }: ActionInput) => {
   const newParagraph = cur.chars.join('');
   cur.paragraphs.push(newParagraph);
   cur.chars = [];
@@ -123,7 +141,7 @@ initState['\n'].action = (_char: string, cur: CurrentProps, _i: number, _breakCo
 };
 initState['\n'].nextState = initState;
 
-const endSectionAction = (_char: string, cur: CurrentProps, _i: number, _breakCound: number, _text: string) => {
+const endSectionAction: StateAction = ({ cur }: ActionInput) => {
   const paragraph = cur.chars.join('');
   cur.chars = [];
   if (paragraph !== '') {
@@ -161,13 +179,12 @@ const afterEndBracketState: State = {
 
 //------------------------------------------
 
-const endBracketAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
+const endBracketAction: StateAction = ({ char, cur, i, breakCount, text }: ActionInput) => {
   const value = cur.chars.join('');
   cur.chars = [];
   const key = cur.bracketKey;
   if (!VALID_BRACKET_KEYS.includes(key)) {
-    errorAction(char, cur, i, breakCount, text);
-    return {};
+    return errorAction({ char, cur, i, breakCount, text });
   }
 
   switch (key) {
@@ -229,17 +246,17 @@ const inBracketAfterKeyState: State = {
 inBracketAfterKeyState[' '].nextState = inBracketAfterKeyState;
 inBracketAfterKeyState['\n'].nextState = inBracketAfterKeyState;
 
-const keyDetermineAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
+const keyDetermineAction = ({ cur, char, i, breakCount, text }: ActionInput) => {
   const key = cur.chars.join('');
   cur.chars = [];
   if (!VALID_BRACKET_KEYS.includes(key)) {
-    errorAction(char, cur, i, breakCount, text);
+    return errorAction({ char, cur, i, breakCount, text });
   }
   cur.bracketKey = key;
   return cur;
 };
 
-const singleKeywordTagEndAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
+const singleKeywordTagEndAction: StateAction = ({ char, cur, i, breakCount, text }: ActionInput) => {
   if (cur.chars.join('') === PAGE) {
     cur.chars = [];
     cur.pages.push({ sections: cur.sections, id: cur.pageId });
@@ -247,12 +264,11 @@ const singleKeywordTagEndAction = (char: string, cur: CurrentProps, i: number, b
     cur.sections = [];
     return cur;
   }
-  errorAction(char, cur, i, breakCount, text);
-  return {};
+  return errorAction({ char, cur, i, breakCount, text });
 };
 
-const sectionEndPageEndAction = (char: string, cur: CurrentProps, i: number, breakCount: number, text: string) => {
-  const nextCur = endSectionAction(char, cur, i, breakCount, text);
+const sectionEndPageEndAction = ({ char, cur, i, breakCount, text }: ActionInput) => {
+  const nextCur = endSectionAction({ char, cur, i, breakCount, text });
   nextCur.pages.push({ sections: cur.sections, id: nextCur.pageId });
   nextCur.sections = [];
   nextCur.pageId += 1;
@@ -325,7 +341,7 @@ const parse = (text: string) => {
       throw new Error(`Given character ${char} is not in the state key.`);
     }
     const { action, nextState } = state[next];
-    cur = action(char, cur, i, breakCount, text); // Passing whole the text is memory consuming?
+    cur = action({ char, cur, i, breakCount, text }); // Passing whole the text is memory consuming?
     if (nextState === DUMMY_STATE) {
       if (i < text.length - 1) {
         throw new Error('DUMMY_STATE.');
