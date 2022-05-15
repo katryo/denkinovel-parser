@@ -36,7 +36,7 @@ describe('When a section does not have any tag should return only paragraphs', (
     ['should not trim leading line breaks', '\n Text begins.', ['', ' Text begins.']],
     ['should trim ending line breaks', ' Text ends.\n', [' Text ends.']],
   ])('%s', (title, paragraph, expectedParagraphs): void => {
-    const response: string = parse(`${paragraph}`);
+    const response = parse(`${paragraph}`);
     const expected = [
       {
         id: 0,
@@ -193,7 +193,7 @@ describe('When tags are correct,', (): void => {
         },
       ],
     ])('%s', (keyName, parserdSection): void => {
-      const response: string = parse(`[${keyName} value]paragraph`);
+      const response = parse(`[${keyName} value]paragraph`);
       const expected = [
         {
           id: 0,
@@ -204,7 +204,7 @@ describe('When tags are correct,', (): void => {
     });
 
     test('twice same tags', (): void => {
-      const response: string = parse(`[bg bgvalue1][bg bgvalue2]paragraph`);
+      const response = parse(`[bg bgvalue1][bg bgvalue2]paragraph`);
       const expected = [
         {
           id: 0,
@@ -225,7 +225,7 @@ describe('When tags are correct,', (): void => {
     });
 
     test('multiple', (): void => {
-      const response: string = parse(
+      const response = parse(
         `[music musicvalue][filter filtervalue][sound soundvalue][image imagevalue][bg bgvalue]paragraph`,
       );
       const expected = [
@@ -248,7 +248,7 @@ describe('When tags are correct,', (): void => {
     });
 
     test('should remove line break between tags', (): void => {
-      const response: string = parse(`[bg bgvalue]\n[music musicvalue]paragraph`);
+      const response = parse(`[bg bgvalue]\n[music musicvalue]paragraph`);
       const expected = [
         {
           id: 0,
@@ -509,7 +509,7 @@ describe('When multiple sections have tags, parserd result should be return', ()
       ],
     ],
   ])('%s', (title, tag, sections): void => {
-    const response: string = parse(`${tag}`);
+    const response = parse(`${tag}`);
     const expected = [
       {
         id: 0,
@@ -580,7 +580,7 @@ describe('When multiple pages parsed result should be resturn', (): void => {
       ],
     ],
   ])('has no section, parsed result should be resturn', (title, tag, parsedResult): void => {
-    const response: string = parse(`${tag}`);
+    const response = parse(`${tag}`);
     expect(response).toStrictEqual(parsedResult);
   });
 });

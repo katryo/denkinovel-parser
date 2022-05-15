@@ -40,17 +40,7 @@ const DEFAULT_FILTER = '';
 const DEFAULT_IMAGE = '';
 const VALID_BRACKET_KEYS = ['bg', 'music', 'sound', 'image', 'filter'];
 
-const errorAction: StateAction = ({
-  i,
-  breakCount,
-  text,
-}: {
-  char: string;
-  cur: CurrentProps;
-  i: number;
-  breakCount: number;
-  text: string;
-}) => {
+const errorAction: StateAction = ({ i, breakCount, text }: ActionInput) => {
   const spaces = [];
   for (let index = 0; index < i; index++) {
     spaces.push(' ');
@@ -94,7 +84,7 @@ const ERROR_ACTION_STATE: ActionNextState = {
   nextState: DUMMY_STATE,
 };
 
-const INIT_PROPS = {
+const createInitProps = (): CurrentProps => ({
   id: 0,
   pageId: 0,
   music: DEFAULT_MUSIC,
@@ -107,7 +97,7 @@ const INIT_PROPS = {
   sections: [],
   pages: [],
   bracketKey: '',
-};
+});
 
 const noOpAction: StateAction = ({ cur }: ActionInput) => {
   return cur;
@@ -324,7 +314,7 @@ const isStateKey = (key: string): key is StateKey => {
 };
 
 const parse = (text: string) => {
-  let cur = JSON.parse(JSON.stringify(INIT_PROPS));
+  let cur = createInitProps();
 
   let breakCount = 0;
   let state: State = initState;
