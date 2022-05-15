@@ -24,7 +24,7 @@
     "@types/figlet": "1.5.4",
     "@types/node": "16.11.35",
     "nodemon": "2.0.16",
-    "ts-node": "8.10.2",
+    "ts-node": "10.7.0",
     "typescript": "4.6.4",
     "vitest": "0.12.6"
   }
