@@ -13,19 +13,19 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^4.0.0",
+    "chalk": "^5.0.0",
     "clear": "^0.1.0",
-    "commander": "^5.1.0",
+    "commander": "^9.0.0",
     "figlet": "^1.4.0",
     "path": "^0.12.7"
   },
   "devDependencies": {
-    "@types/clear": "^0.1.0",
-    "@types/figlet": "^1.2.0",
-    "@types/node": "^14.0.5",
-    "nodemon": "^2.0.4",
-    "ts-node": "^8.10.1",
-    "typescript": "^4.6.4",
-    "vitest": "^0.12.0"
+    "@types/clear": "0.1.2",
+    "@types/figlet": "1.5.4",
+    "@types/node": "16.11.35",
+    "nodemon": "2.0.16",
+    "ts-node": "8.10.2",
+    "typescript": "4.6.4",
+    "vitest": "0.12.6"
   }
 }
