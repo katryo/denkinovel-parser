@@ -40,7 +40,7 @@ const DEFAULT_FILTER = '';
 const DEFAULT_IMAGE = '';
 const VALID_BRACKET_KEYS = ['bg', 'music', 'sound', 'image', 'filter'];
 
-const errorAction: StateAction = ({ i, breakCount, text }: ActionInput) => {
+const errorAction: Action = ({ i, breakCount, text }: ActionInput) => {
   const spaces: string[] = [];
   for (let index = 0; index < i; index++) {
     spaces.push(' ');
@@ -51,21 +51,21 @@ const errorAction: StateAction = ({ i, breakCount, text }: ActionInput) => {
 
 const DUMMY_STATE = 'DUMMY_STATE';
 
-interface ActionNextState {
-  action: StateAction;
-  nextState: State | 'DUMMY_STATE';
+interface Event {
+  action: Action;
+  nextState: State | typeof DUMMY_STATE;
 }
 
 const STATE_KEYS = ['[', ']', ' ', '\n', 'END', 'OTHERS'] as const;
 type StateKey = typeof STATE_KEYS[number];
 
 interface State {
-  '[': ActionNextState;
-  ']': ActionNextState;
-  ' ': ActionNextState;
-  '\n': ActionNextState;
-  END: ActionNextState;
-  OTHERS: ActionNextState;
+  '[': Event;
+  ']': Event;
+  ' ': Event;
+  '\n': Event;
+  END: Event;
+  OTHERS: Event;
 }
 
 interface ActionInput {
@@ -76,9 +76,9 @@ interface ActionInput {
   text: string;
 }
 
-type StateAction = (actionInput: ActionInput) => CurrentProps;
+type Action = (actionInput: ActionInput) => CurrentProps;
 
-const ERROR_ACTION_STATE: ActionNextState = {
+const ERROR_ACTION_STATE: Event = {
   action: errorAction,
   nextState: DUMMY_STATE,
 };
@@ -98,7 +98,7 @@ const createInitProps = (): CurrentProps => ({
   bracketKey: '',
 });
 
-const noOpAction: StateAction = ({ cur }: ActionInput) => {
+const noOpAction: Action = ({ cur }: ActionInput) => {
   return cur;
 };
 
@@ -111,7 +111,7 @@ const initState: State = {
   OTHERS: { action: noOpAction, nextState: DUMMY_STATE }, // To be replaced
 };
 
-const pushCharAction: StateAction = ({ cur, char }: ActionInput) => {
+const pushCharAction: Action = ({ cur, char }: ActionInput) => {
   cur.chars.push(char);
   return cur;
 };
@@ -130,7 +130,7 @@ initState['\n'].action = ({ cur }: ActionInput) => {
 };
 initState['\n'].nextState = initState;
 
-const endShotAction: StateAction = ({ cur }: ActionInput) => {
+const endShotAction: Action = ({ cur }: ActionInput) => {
   const paragraph = cur.chars.join('');
   cur.chars = [];
   if (paragraph !== '') {
@@ -168,7 +168,7 @@ const afterEndBracketState: State = {
 
 //------------------------------------------
 
-const endBracketAction: StateAction = ({ char, cur, i, breakCount, text }: ActionInput) => {
+const endBracketAction: Action = ({ char, cur, i, breakCount, text }: ActionInput) => {
   const value = cur.chars.join('');
   cur.chars = [];
   const key = cur.bracketKey;
@@ -245,7 +245,7 @@ const keyDetermineAction = ({ cur, char, i, breakCount, text }: ActionInput) => 
   return cur;
 };
 
-const singleKeywordTagEndAction: StateAction = ({ char, cur, i, breakCount, text }: ActionInput) => {
+const singleKeywordTagEndAction: Action = ({ char, cur, i, breakCount, text }: ActionInput) => {
   if (cur.chars.join('') === PAGE) {
     cur.chars = [];
     cur.pages.push({ shots: cur.shots, id: cur.pageId });
