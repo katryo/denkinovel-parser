@@ -99,8 +99,6 @@ const episodes = [
   },
 ];
 
-// console.log(chalk.red(figlet.textSync('denkinovel-parser')))
-
 for (const num of [1, 2]) {
   const inputPath = path.join(process.cwd(), 'input', `episode-${num}.txt`);
   const text = fs.readFileSync(inputPath, 'utf8');

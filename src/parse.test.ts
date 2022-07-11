@@ -40,7 +40,7 @@ describe('When a section does not have any tag should return only paragraphs', (
     const expected = [
       {
         id: 0,
-        sections: [
+        shots: [
           {
             id: 0,
             bg: '',
@@ -197,7 +197,7 @@ describe('When tags are correct,', (): void => {
       const expected = [
         {
           id: 0,
-          sections: [parserdSection],
+          shots: [parserdSection],
         },
       ];
       expect(response).toStrictEqual(expected);
@@ -208,7 +208,7 @@ describe('When tags are correct,', (): void => {
       const expected = [
         {
           id: 0,
-          sections: [
+          shots: [
             {
               id: 0,
               bg: 'bgvalue2',
@@ -231,7 +231,7 @@ describe('When tags are correct,', (): void => {
       const expected = [
         {
           id: 0,
-          sections: [
+          shots: [
             {
               id: 0,
               bg: 'bgvalue',
@@ -252,7 +252,7 @@ describe('When tags are correct,', (): void => {
       const expected = [
         {
           id: 0,
-          sections: [
+          shots: [
             {
               id: 0,
               bg: 'bgvalue',
@@ -271,7 +271,7 @@ describe('When tags are correct,', (): void => {
     test('should trim leading line breaks', () => {
       expect(parse('[music dance]\n Text begins.')).toStrictEqual([
         {
-          sections: [
+          shots: [
             {
               paragraphs: [' Text begins.'],
               music: 'dance',
@@ -290,7 +290,7 @@ describe('When tags are correct,', (): void => {
     test('should trim ending line breaks', () => {
       expect(parse('[music dance] Text ends.\n')).toStrictEqual([
         {
-          sections: [
+          shots: [
             {
               paragraphs: [' Text ends.'],
               music: 'dance',
@@ -513,7 +513,7 @@ describe('When multiple sections have tags, parserd result should be return', ()
     const expected = [
       {
         id: 0,
-        sections: sections,
+        shots: sections,
       },
     ];
     expect(response).toStrictEqual(expected);
@@ -528,11 +528,11 @@ describe('When multiple pages parsed result should be resturn', (): void => {
       [
         {
           id: 0,
-          sections: [],
+          shots: [],
         },
         {
           id: 1,
-          sections: [],
+          shots: [],
         },
       ],
     ],
@@ -542,7 +542,7 @@ describe('When multiple pages parsed result should be resturn', (): void => {
       [
         {
           id: 0,
-          sections: [
+          shots: [
             {
               id: 0,
               bg: 'bgvalue',
@@ -565,7 +565,7 @@ describe('When multiple pages parsed result should be resturn', (): void => {
         },
         {
           id: 1,
-          sections: [
+          shots: [
             {
               id: 2,
               bg: 'bgvalue',

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-interface Section {
+interface Shot {
   paragraphs: string[];
   music: string;
   sound: string;
@@ -11,7 +11,7 @@ interface Section {
 }
 
 interface Page {
-  sections: Section[];
+  shots: Shot[];
   id: number;
 }
 
@@ -26,7 +26,7 @@ interface CurrentProps {
   paragraphs: string[];
   chars: string[];
   bracketKey: string;
-  sections: Section[];
+  shots: Shot[];
   pages: Page[];
 }
 
@@ -41,7 +41,7 @@ const DEFAULT_IMAGE = '';
 const VALID_BRACKET_KEYS = ['bg', 'music', 'sound', 'image', 'filter'];
 
 const errorAction: StateAction = ({ i, breakCount, text }: ActionInput) => {
-  const spaces = [];
+  const spaces: string[] = [];
   for (let index = 0; index < i; index++) {
     spaces.push(' ');
   }
@@ -56,9 +56,8 @@ interface ActionNextState {
   nextState: State | 'DUMMY_STATE';
 }
 
-const STATE_KEYS = ['[', ']', ' ', '\n', 'END', 'OTHERS'];
-
-type StateKey = '[' | ']' | ' ' | '\n' | 'END' | 'OTHERS';
+const STATE_KEYS = ['[', ']', ' ', '\n', 'END', 'OTHERS'] as const;
+type StateKey = typeof STATE_KEYS[number];
 
 interface State {
   '[': ActionNextState;
@@ -94,7 +93,7 @@ const createInitProps = (): CurrentProps => ({
   filter: DEFAULT_FILTER,
   paragraphs: [],
   chars: [],
-  sections: [],
+  shots: [],
   pages: [],
   bracketKey: '',
 });
@@ -131,7 +130,7 @@ initState['\n'].action = ({ cur }: ActionInput) => {
 };
 initState['\n'].nextState = initState;
 
-const endSectionAction: StateAction = ({ cur }: ActionInput) => {
+const endShotAction: StateAction = ({ cur }: ActionInput) => {
   const paragraph = cur.chars.join('');
   cur.chars = [];
   if (paragraph !== '') {
@@ -139,7 +138,7 @@ const endSectionAction: StateAction = ({ cur }: ActionInput) => {
   }
 
   if (cur.paragraphs.length > 0) {
-    cur.sections.push({
+    cur.shots.push({
       paragraphs: cur.paragraphs,
       music: cur.music,
       sound: cur.sound,
@@ -249,23 +248,23 @@ const keyDetermineAction = ({ cur, char, i, breakCount, text }: ActionInput) => 
 const singleKeywordTagEndAction: StateAction = ({ char, cur, i, breakCount, text }: ActionInput) => {
   if (cur.chars.join('') === PAGE) {
     cur.chars = [];
-    cur.pages.push({ sections: cur.sections, id: cur.pageId });
+    cur.pages.push({ shots: cur.shots, id: cur.pageId });
     cur.pageId += 1;
-    cur.sections = [];
+    cur.shots = [];
     return cur;
   }
   return errorAction({ char, cur, i, breakCount, text });
 };
 
-const sectionEndPageEndAction = ({ char, cur, i, breakCount, text }: ActionInput) => {
-  const nextCur = endSectionAction({ char, cur, i, breakCount, text });
-  nextCur.pages.push({ sections: cur.sections, id: nextCur.pageId });
-  nextCur.sections = [];
+const shotEndPageEndAction = ({ char, cur, i, breakCount, text }: ActionInput) => {
+  const nextCur = endShotAction({ char, cur, i, breakCount, text });
+  nextCur.pages.push({ shots: cur.shots, id: nextCur.pageId });
+  nextCur.shots = [];
   nextCur.pageId += 1;
   return nextCur;
 };
 
-initState[END].action = sectionEndPageEndAction;
+initState[END].action = shotEndPageEndAction;
 //------------------------------------
 
 // [ bg building]
@@ -299,7 +298,7 @@ inBracketBeforeKeyState['\n'].nextState = inBracketBeforeKeyState;
 // singleKeywordBracketEndState['['].nextState = inBracketBeforeKeyState;
 
 initState['['].nextState = inBracketBeforeKeyState;
-initState['['].action = endSectionAction;
+initState['['].action = endShotAction;
 
 afterEndBracketState['\n'].nextState = initState;
 afterEndBracketState.OTHERS.action = pushCharAction;
@@ -307,10 +306,10 @@ afterEndBracketState.OTHERS.nextState = initState;
 afterEndBracketState[' '].action = pushCharAction;
 afterEndBracketState[' '].nextState = initState;
 afterEndBracketState['['].nextState = inBracketBeforeKeyState;
-afterEndBracketState.END.action = sectionEndPageEndAction;
+afterEndBracketState.END.action = shotEndPageEndAction;
 
 const isStateKey = (key: string): key is StateKey => {
-  return STATE_KEYS.includes(key);
+  return (STATE_KEYS as readonly string[]).includes(key);
 };
 
 const parse = (text: string) => {
