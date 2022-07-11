@@ -57,7 +57,7 @@ describe('When a section does not have any tag should return only paragraphs', (
   });
 });
 
-describe('When tags has syntax errors, an exception should be thrown', (): void => {
+describe('When tags have syntax errors, an exception should be thrown', (): void => {
   it.each([
     '[',
     ']',
