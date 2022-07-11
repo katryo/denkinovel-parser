@@ -2,10 +2,6 @@
 
 import fs from 'fs';
 import path from 'path';
-// const chalk = require('chalk');
-// const clear = require('clear');
-// const figlet = require('figlet');
-// const program = require('commander');
 
 import { parse } from './parse';
 
