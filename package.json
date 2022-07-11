@@ -8,7 +8,8 @@
     "create": "npm run build && npm run test",
     "build": "tsc -p .",
     "test": "vitest",
-    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install"
+    "refresh": "rm -rf ./node_modules ./package-lock.json && npm install",
+    "preinstall": "npx only-allow pnpm"
   },
   "author": "",
   "license": "MIT",
