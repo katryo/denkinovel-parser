@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@types/node': 16.11.36
+  '@types/node': 18.18.6
   nodemon: 2.0.16
   path: ^0.12.7
   ts-node: 10.7.0
@@ -12,9 +12,9 @@ dependencies:
   path: 0.12.7
 
 devDependencies:
-  '@types/node': 16.11.36
+  '@types/node': 18.18.6
   nodemon: 2.0.16
-  ts-node: 10.7.0_rbv5fvwh3qaahz6dxcho7rzsry
+  ts-node: 10.7.0_pojpqiqjye3ma6z4ef3tnny3nu
   typescript: 4.6.4
   vitest: 0.12.6
 
@@ -73,17 +73,17 @@ packages:
   /@types/keyv/3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
-      '@types/node': 16.11.36
+      '@types/node': 18.18.6
     dev: true
 
-  /@types/node/16.11.36:
-    resolution: {integrity: sha512-FR5QJe+TaoZ2GsMHkjuwoNabr+UrJNRr2HNOo+r/7vhcuntM6Ee/pRPOnRhhL2XE9OOvX9VLEq+BcXl3VjNoWA==}
+  /@types/node/18.18.6:
+    resolution: {integrity: sha512-wf3Vz+jCmOQ2HV1YUJuCWdL64adYxumkrxtc+H1VUQlnQI04+5HtH+qZCOE21lBE7gIrt+CwX2Wv8Acrw5Ak6w==}
     dev: true
 
   /@types/responselike/1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
     dependencies:
-      '@types/node': 16.11.36
+      '@types/node': 18.18.6
     dev: true
 
   /abbrev/1.1.1:
@@ -1110,7 +1110,7 @@ packages:
       nopt: 1.0.10
     dev: true
 
-  /ts-node/10.7.0_rbv5fvwh3qaahz6dxcho7rzsry:
+  /ts-node/10.7.0_pojpqiqjye3ma6z4ef3tnny3nu:
     resolution: {integrity: sha512-TbIGS4xgJoX2i3do417KSaep1uRAW/Lu+WAL2doDHC0D6ummjirVOXU5/7aiZotbQ5p1Zp9tP7U6cYhA0O7M8A==}
     hasBin: true
     peerDependencies:
@@ -1129,7 +1129,7 @@ packages:
       '@tsconfig/node12': 1.0.9
       '@tsconfig/node14': 1.0.1
       '@tsconfig/node16': 1.0.2
-      '@types/node': 16.11.36
+      '@types/node': 18.18.6
       acorn: 8.7.1
       acorn-walk: 8.2.0
       arg: 4.1.3
